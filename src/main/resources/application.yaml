@@ -1,3 +1,28 @@
 spring:
   application:
     name: Horta Connect API
+
+  datasource:
+    # Conexão com o banco 'hortaconnect' (Crie esse banco no MySQL antes!)
+    url: jdbc:mysql://localhost:3306/hortaconnect?useTimezone=true&serverTimezone=UTC
+
+    # Seu usuário (geralmente é root)
+    username: root
+
+    # 👇 AQUI ESTÁ A MÁGICA: Ele vai buscar a senha na variável de ambiente
+    password: ${DB_PASSWORD}
+
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    # "update": Se a tabela não existir, ele cria. Se mudar algo no Java, ele atualiza no banco.
+    hibernate:
+      ddl-auto: update
+
+    # Mostra o SQL no console (Ótimo para você ver o que está acontecendo)
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect

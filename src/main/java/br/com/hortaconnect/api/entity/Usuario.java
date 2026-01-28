@@ -44,7 +44,6 @@ public class Usuario {
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
 
-    // Automatiza as datas
     @PrePersist
     public void prePersist() {
         this.dataCadastro = LocalDateTime.now();

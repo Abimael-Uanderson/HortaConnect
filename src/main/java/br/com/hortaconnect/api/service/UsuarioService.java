@@ -67,5 +67,24 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
+    public java.util.List<UsuarioResponseDTO> listarTodos() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(usuarioMapper::toDTO)
+                .toList();
+    }
+
+    public UsuarioResponseDTO atualizarUsuario(Long id, UsuarioRequestDTO dto) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        usuarioMapper.atualizarEntity(dto, usuario);
+
+        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+
+        usuario = usuarioRepository.save(usuario);
+        return usuarioMapper.toDTO(usuario);
+    }
+
 
 }

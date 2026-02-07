@@ -12,10 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
+
+
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
-
 
     private final UsuarioService usuarioService;
 
@@ -23,42 +25,39 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    @GetMapping("/teste")
-    public String boasVindas() {
-        return "Boas vindas";
-    }
-
-
-    @PostMapping("/cadastro")
-    public ResponseEntity<UsuarioResponseDTO> criarUsuario(@RequestBody  @Valid UsuarioRequestDTO usuario) {
-        UsuarioResponseDTO usuarioSalvo = usuarioService.cadastrarUsuario(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(usuarioSalvo);
+    @PostMapping
+    public ResponseEntity<UsuarioResponseDTO> criarUsuario(@RequestBody @Valid UsuarioRequestDTO dto) {
+        UsuarioResponseDTO usuarioSalvo = usuarioService.cadastrarUsuario(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioSalvo);
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginDto) {
-        LoginResponseDTO loginResponse = usuarioService.login(loginDto);
-        return ResponseEntity.ok(loginResponse);
+        return ResponseEntity.ok(usuarioService.login(loginDto));
     }
 
-    @DeleteMapping("/excluir-conta/{id}")
-    public ResponseEntity<?> apagarUsuario(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.buscarUsuarioPorId(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(usuarioService.listarTodos());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> atualizarUsuario(
+            @PathVariable Long id,
+            @RequestBody @Valid UsuarioRequestDTO dto
+    ) {
+        return ResponseEntity.ok(usuarioService.atualizarUsuario(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
         usuarioService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }
-
-    @GetMapping("/lista/{id}")
-    public ResponseEntity<?> listarPorId(@PathVariable Long id) {
-        UsuarioResponseDTO usuario = usuarioService.buscarUsuarioPorId(id);
-        return ResponseEntity.ok(usuario);
-    }
-
-
-
-
-
-    //@DeleteMapping("apagar-conta")
-
-
 }
+

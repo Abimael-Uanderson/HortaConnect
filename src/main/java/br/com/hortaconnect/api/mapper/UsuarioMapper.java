@@ -36,4 +36,14 @@ public class UsuarioMapper {
 
         return usuario;
     }
+
+    public void atualizarEntity(UsuarioRequestDTO dto, Usuario usuario) {
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
+        usuario.setTelefone(dto.getTelefone());
+        usuario.setCep(dto.getCep());
+        usuario.setCidade(dto.getCidade());
+        usuario.setEstado(dto.getEstado());
+
+    }
 }

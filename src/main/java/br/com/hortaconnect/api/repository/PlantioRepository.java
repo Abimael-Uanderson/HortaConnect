@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PlantioRepository extends JpaRepository<Plantio, Long> {
     List<Plantio> findByUsuarioId(Long usuarioId);
+    List<Plantio> findAllByUsuarioIdAndAtivoTrue(Long usuarioId);
 }

@@ -34,7 +34,6 @@ public class ClimaService {
         this.brasilApiClient = brasilApiClient;
     }
 
-    // ✅ MUDANÇA 1: Cron setado para 06:00 da manhã (Produção)
     @Scheduled(cron = "0 0 6 * * *")
     public void verificarClima() {
         System.out.println("🌦️ Robô de Clima Iniciado...");
@@ -50,23 +49,19 @@ public class ClimaService {
     }
 
     private void processarUsuario(Usuario usuario) {
-        // 1. GARANTE COORDENADAS (Fluxo Inteligente)
         if (usuario.getLatitude() == null || usuario.getLongitude() == null) {
-            atualizarCoordenadas(usuario); // Refatorei para um método auxiliar para reusar
+            atualizarCoordenadas(usuario);
         }
 
-        // Se mesmo tentando atualizar, continuar null, desiste
         if (usuario.getLatitude() == null) return;
 
-        // 2. BUSCA PREVISÃO DO TEMPO
         WeatherResponseDTO clima = weatherClient.buscarPrevisao7Dias(usuario.getLatitude(), usuario.getLongitude());
 
         if (clima != null && clima.getDaily() != null) {
             clima.getDaily().forEach(dia -> analisarDia(dia, usuario));
         }
     }
-
-    // Método auxiliar para buscar Lat/Lon se estiver faltando
+    
     private void atualizarCoordenadas(Usuario usuario) {
         BrasilApiResponseDTO endereco = brasilApiClient.buscarCep(usuario.getCep());
 
@@ -85,26 +80,21 @@ public class ClimaService {
 
     private void analisarDia(DailyForecastDTO dia, Usuario usuario) {
         LocalDate data = Instant.ofEpochSecond(dia.getDt()).atZone(ZoneId.systemDefault()).toLocalDate();
-        if (data.isBefore(LocalDate.now())) return; // Ignora passado
+        if (data.isBefore(LocalDate.now())) return;
 
         double chuva = (dia.getRain() != null) ? dia.getRain() : 0.0;
         int weatherId = dia.getWeather().get(0).getId();
 
-        // ✅ MUDANÇA 2: Limites ajustados para a vida real
-
-        // 1. Chuva Forte (> 20mm)
         if (chuva > 20.0 || (weatherId >= 200 && weatherId < 300)) {
             alertaService.criarAlertaSeNaoExistir(usuario, TipoAlerta.CHUVA_FORTE,
                     "Tempestade/Chuva forte (" + String.format("%.1f", chuva) + "mm) prevista.", data.atStartOfDay());
         }
 
-        // 2. Calor Extremo (> 35°C)
         if (dia.getTemp().getMax() > 35.0) {
             alertaService.criarAlertaSeNaoExistir(usuario, TipoAlerta.CALOR_INTENSO,
                     "Calor extremo (" + dia.getTemp().getMax() + "°C). Hidrate a horta.", data.atStartOfDay());
         }
 
-        // 3. Geada (< 4°C)
         if (dia.getTemp().getMin() < 4.0) {
             alertaService.criarAlertaSeNaoExistir(usuario, TipoAlerta.GEADA,
                     "Risco de Geada (" + dia.getTemp().getMin() + "°C). Proteja as mudas.", data.atStartOfDay());
@@ -114,25 +104,20 @@ public class ClimaService {
     public ClimaAtualResponseDTO obterClimaAtualDoUsuarioLogado() {
         Usuario usuario = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        // ✅ MUDANÇA 3: Auto-recuperação
-        // Se o usuário acabou de entrar e não tem Lat/Lon, busca agora em vez de dar erro
         if (usuario.getLatitude() == null || usuario.getLongitude() == null) {
             atualizarCoordenadas(usuario);
 
-            // Se ainda assim for null (CEP inválido), aí sim lança erro
             if (usuario.getLatitude() == null) {
                 throw new RuntimeException("Endereço não localizado. Verifique seu CEP.");
             }
         }
 
-        // 2. Busca na API
         WeatherResponseDTO clima = weatherClient.buscarPrevisao7Dias(usuario.getLatitude(), usuario.getLongitude());
 
         if (clima == null || clima.getCurrent() == null) {
             throw new RuntimeException("Serviço de clima indisponível no momento.");
         }
 
-        // 3. Monta a resposta bonita pro Front
         ClimaAtualResponseDTO dto = new ClimaAtualResponseDTO();
         dto.setCidade(usuario.getCidade());
         dto.setEstado(usuario.getEstado());

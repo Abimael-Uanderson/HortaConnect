@@ -8,8 +8,8 @@ import java.util.List;
 public class CurrentWeatherDTO {
     private long dt;
     private double temp;
-    private double feels_like; // Sensação térmica
+    private double feels_like;
     private double humidity;
     private double wind_speed;
-    private List<WeatherConditionDTO> weather; // Ícone e descrição
+    private List<WeatherConditionDTO> weather;
 }

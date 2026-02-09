@@ -6,10 +6,9 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class WeatherConditionDTO {
-    private int id;             // Código numérico (ex: 500)
-    private String main;        // Grupo principal (ex: "Rain")
-    private String description; // Descrição (ex: "chuva leve")
+    private int id;
+    private String main;
+    private String description;
 
-    // 👇 ADICIONE ESTE CAMPO AQUI
-    private String icon;        // Código do ícone (ex: "10d")
+    private String icon;
 }

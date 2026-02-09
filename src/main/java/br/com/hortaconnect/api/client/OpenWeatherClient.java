@@ -13,7 +13,6 @@ public class OpenWeatherClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // 1. Busca Previsão 7 Dias
     public WeatherResponseDTO buscarPrevisao7Dias(double lat, double lon) {
         String url = String.format(
                 "https://api.openweathermap.org/data/3.0/onecall?lat=%s&lon=%s&exclude=minutely,hourly&units=metric&lang=pt_br&appid=%s",
@@ -27,7 +26,6 @@ public class OpenWeatherClient {
         }
     }
 
-    // 2. Busca Coordenadas por Cidade (Plano B inteligente)
     public GeoCodingDTO buscarCoordenadas(String cidade, String estado) {
         String url = String.format(
                 "http://api.openweathermap.org/geo/1.0/direct?q=%s,%s,BR&limit=1&appid=%s",

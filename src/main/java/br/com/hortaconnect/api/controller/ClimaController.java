@@ -19,7 +19,6 @@ public class ClimaController {
 
     @GetMapping("/atual")
     public ResponseEntity<ClimaAtualResponseDTO> getClimaAtual() {
-        // GET http://localhost:8080/clima/atual
         return ResponseEntity.ok(climaService.obterClimaAtualDoUsuarioLogado());
     }
 }

@@ -8,8 +8,8 @@ public class ClimaAtualResponseDTO {
     private String estado;
     private double temperatura;
     private double sensacaoTermica;
-    private String descricao; // "céu limpo", "chuva leve"
-    private String icone; // código do ícone (ex: "10d")
+    private String descricao;
+    private String icone;
     private double umidade;
     private double vento;
 }

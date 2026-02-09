@@ -16,7 +16,7 @@ public class AgendaCuidadoMapper {
         dto.setDataAgendamento(entity.getDataAgendamento());
         dto.setDescricao(entity.getDescricao());
         dto.setStatusCuidado(entity.getStatusCuidado());
-        
+
         if (entity.getPlantio() != null) {
             dto.setPlantioId(entity.getPlantio().getId());
             dto.setNomeCultura(entity.getPlantio().getNomeCultura());

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class AgendaCuidadoRequestDTO {
 
     @NotBlank(message = "O ID do plantio é obrigatório")
-    private Plantio plantio;
+    private Long plantioId;
 
     @NotBlank(message = "O tipo de cuidado é obrigatório")
     private TipoCuidado tipoCuidado;

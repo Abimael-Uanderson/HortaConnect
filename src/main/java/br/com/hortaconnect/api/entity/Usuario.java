@@ -44,6 +44,9 @@ public class Usuario {
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
 
+    private Double latitude;
+    private Double longitude;
+
     @PrePersist
     public void prePersist() {
         this.dataCadastro = LocalDateTime.now();

@@ -21,3 +21,8 @@ api:
   security:
     token:
       secret: ${JWT_SECRET}
+
+# --- ADICIONE ISSO AQUI EMBAIXO ---
+openweather:
+  api:
+    key: ${OPENWEATHER_API_KEY} # Ou cole a chave direto aqui se for teste local

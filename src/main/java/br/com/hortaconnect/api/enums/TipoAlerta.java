@@ -4,7 +4,5 @@ public enum TipoAlerta {
     CHUVA_FORTE,
     CALOR_INTENSO,
     GEADA,
-    VENTO_FORTE,
-    SECA,
-    OUTRO
+    VENTO_FORTE
 }

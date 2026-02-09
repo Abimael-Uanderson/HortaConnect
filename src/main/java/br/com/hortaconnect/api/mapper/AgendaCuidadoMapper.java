@@ -34,4 +34,11 @@ public class AgendaCuidadoMapper {
 
         return entity;
     }
+
+    public void atualizarEntity(AgendaCuidadoRequestDTO dto, AgendaCuidado entity) {
+        entity.setTipoCuidado(dto.getTipoCuidado());
+        entity.setDataAgendamento(dto.getDataAgendamento());
+        entity.setDescricao(dto.getDescricao());
+
+    }
 }

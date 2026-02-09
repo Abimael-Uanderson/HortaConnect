@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface HistoricoHortaRepository extends JpaRepository<HistoricoHorta, Long> {
     List<HistoricoHorta> findByPlantioId(Long plantioId);
+    List<HistoricoHorta> findByPlantioIdOrderByDataEventoDesc(Long plantioId);
 }

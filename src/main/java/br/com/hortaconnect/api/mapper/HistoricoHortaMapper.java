@@ -35,4 +35,12 @@ public class HistoricoHortaMapper {
 
         return entity;
     }
+
+    public void atualizarEntity(HistoricoHortaRequestDTO dto, HistoricoHorta entity) {
+        entity.setTitulo(dto.getTitulo());
+        entity.setDescricao(dto.getDescricao());
+        entity.setDataEvento(dto.getDataEvento());
+        entity.setImagem(dto.getImagem());
+
+    }
 }

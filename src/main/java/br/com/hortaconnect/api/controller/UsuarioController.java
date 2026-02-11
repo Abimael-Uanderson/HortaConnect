@@ -1,9 +1,6 @@
 package br.com.hortaconnect.api.controller;
 
-import br.com.hortaconnect.api.dto.LoginRequestDTO;
-import br.com.hortaconnect.api.dto.LoginResponseDTO;
-import br.com.hortaconnect.api.dto.UsuarioRequestDTO;
-import br.com.hortaconnect.api.dto.UsuarioResponseDTO;
+import br.com.hortaconnect.api.dto.*;
 import br.com.hortaconnect.api.entity.Usuario;
 import br.com.hortaconnect.api.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -16,7 +13,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -58,6 +55,12 @@ public class UsuarioController {
     public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
         usuarioService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/recuperar-senha")
+    public ResponseEntity<Void> recuperarSenha(@RequestBody RecuperarSenhaDTO dto) {
+        usuarioService.recuperarSenha(dto.email());
+        return ResponseEntity.ok().build();
     }
 }
 

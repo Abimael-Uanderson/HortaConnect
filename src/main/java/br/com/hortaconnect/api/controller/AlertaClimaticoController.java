@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/alertas")
+@RequestMapping("/api/alertas")
 public class AlertaClimaticoController {
     private final AlertaClimaticoService service;
 

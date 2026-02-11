@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cotacoes")
+@RequestMapping("/api/cotacoes")
 public class CotacaoController {
 
     private final CotacaoService service;
@@ -19,6 +19,9 @@ public class CotacaoController {
 
     @GetMapping("/buscar")
     public ResponseEntity<List<ProdutoCotacaoDTO>> buscar(@RequestParam String termo) {
+
+        System.out.println("💰 RECEBI PEDIDO DE COTAÇÃO PARA: " + termo);
+
         return ResponseEntity.ok(service.buscarMelhorPreco(termo));
     }
 }

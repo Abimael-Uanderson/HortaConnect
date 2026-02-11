@@ -34,6 +34,7 @@ public class ClimaService {
         this.brasilApiClient = brasilApiClient;
     }
 
+    // Robô que roda todo dia às 06:00 da manhã
     @Scheduled(cron = "0 0 6 * * *")
     public void verificarClima() {
         System.out.println("🌦️ Robô de Clima Iniciado...");
@@ -49,10 +50,12 @@ public class ClimaService {
     }
 
     private void processarUsuario(Usuario usuario) {
+        // Tenta corrigir coordenadas se estiverem faltando
         if (usuario.getLatitude() == null || usuario.getLongitude() == null) {
             atualizarCoordenadas(usuario);
         }
 
+        // Se mesmo tentando atualizar, continuar null, desiste desse usuário
         if (usuario.getLatitude() == null) return;
 
         WeatherResponseDTO clima = weatherClient.buscarPrevisao7Dias(usuario.getLatitude(), usuario.getLongitude());
@@ -61,20 +64,42 @@ public class ClimaService {
             clima.getDaily().forEach(dia -> analisarDia(dia, usuario));
         }
     }
-    
+
+    // Método Robusto com Logs para Debugar o erro do "João"
     private void atualizarCoordenadas(Usuario usuario) {
-        BrasilApiResponseDTO endereco = brasilApiClient.buscarCep(usuario.getCep());
-
-        if (endereco != null && endereco.getCity() != null) {
-            GeoCodingDTO geo = weatherClient.buscarCoordenadas(endereco.getCity(), endereco.getState());
-
-            if (geo != null) {
-                usuario.setLatitude(geo.getLat());
-                usuario.setLongitude(geo.getLon());
-                usuario.setCidade(endereco.getCity());
-                usuario.setEstado(endereco.getState());
-                usuarioRepository.save(usuario);
+        try {
+            if (usuario.getCep() == null || usuario.getCep().length() < 8) {
+                System.err.println("❌ CEP inválido ou nulo para usuário " + usuario.getNome() + ": " + usuario.getCep());
+                return;
             }
+
+            System.out.println("🔍 Buscando endereço para CEP: " + usuario.getCep());
+
+            // 1. Busca Endereço no BrasilAPI
+            BrasilApiResponseDTO endereco = brasilApiClient.buscarCep(usuario.getCep());
+
+            if (endereco != null && endereco.getCity() != null) {
+                System.out.println("✅ BrasilAPI encontrou: " + endereco.getCity() + "/" + endereco.getState());
+
+                // 2. Busca Lat/Lon no OpenWeather usando Nome da Cidade
+                GeoCodingDTO geo = weatherClient.buscarCoordenadas(endereco.getCity(), endereco.getState());
+
+                if (geo != null) {
+                    usuario.setLatitude(geo.getLat());
+                    usuario.setLongitude(geo.getLon());
+                    usuario.setCidade(endereco.getCity());
+                    usuario.setEstado(endereco.getState());
+                    usuarioRepository.save(usuario); // Salva no banco!
+                    System.out.println("✅ Coordenadas salvas com sucesso: " + geo.getLat() + ", " + geo.getLon());
+                } else {
+                    System.err.println("❌ OpenWeather não achou coordenadas para a cidade: " + endereco.getCity());
+                }
+            } else {
+                System.err.println("❌ BrasilAPI não achou endereço para o CEP: " + usuario.getCep());
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Erro crítico ao atualizar coordenadas: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -85,6 +110,7 @@ public class ClimaService {
         double chuva = (dia.getRain() != null) ? dia.getRain() : 0.0;
         int weatherId = dia.getWeather().get(0).getId();
 
+        // Regras de Negócio (Alertas)
         if (chuva > 20.0 || (weatherId >= 200 && weatherId < 300)) {
             alertaService.criarAlertaSeNaoExistir(usuario, TipoAlerta.CHUVA_FORTE,
                     "Tempestade/Chuva forte (" + String.format("%.1f", chuva) + "mm) prevista.", data.atStartOfDay());
@@ -101,23 +127,38 @@ public class ClimaService {
         }
     }
 
+    // Método chamado pelo Front-end (Dashboard)
     public ClimaAtualResponseDTO obterClimaAtualDoUsuarioLogado() {
-        Usuario usuario = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // 1. Pega o usuário do Contexto de Segurança (Memória)
+        Usuario usuarioToken = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        // 2. IMPORTANTE: Recarrega do Banco de Dados pelo ID
+        // Isso garante que pegamos as coordenadas atualizadas se elas foram salvas recentemente
+        Usuario usuario = usuarioRepository.findById(usuarioToken.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado no banco de dados."));
+
+        // 3. Verifica e tenta corrigir coordenadas (Auto-recuperação)
         if (usuario.getLatitude() == null || usuario.getLongitude() == null) {
+            System.out.println("⚠️ Usuário logado sem coordenadas. Tentando recuperar agora...");
             atualizarCoordenadas(usuario);
 
+            // Recarrega de novo para ver se salvou
+            usuario = usuarioRepository.findById(usuarioToken.getId()).orElseThrow();
+
             if (usuario.getLatitude() == null) {
-                throw new RuntimeException("Endereço não localizado. Verifique seu CEP.");
+                // Se ainda for null, o CEP está errado ou a API falhou
+                throw new RuntimeException("Endereço não localizado. Verifique se o CEP " + usuario.getCep() + " está correto.");
             }
         }
 
+        // 4. Busca na API de Clima
         WeatherResponseDTO clima = weatherClient.buscarPrevisao7Dias(usuario.getLatitude(), usuario.getLongitude());
 
         if (clima == null || clima.getCurrent() == null) {
             throw new RuntimeException("Serviço de clima indisponível no momento.");
         }
 
+        // 5. Monta o DTO de resposta
         ClimaAtualResponseDTO dto = new ClimaAtualResponseDTO();
         dto.setCidade(usuario.getCidade());
         dto.setEstado(usuario.getEstado());

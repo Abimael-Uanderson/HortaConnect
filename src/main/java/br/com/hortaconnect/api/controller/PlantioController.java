@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/plantios")
+@RequestMapping("/api/plantios")
 public class PlantioController {
 
     private final PlantioService plantioService;

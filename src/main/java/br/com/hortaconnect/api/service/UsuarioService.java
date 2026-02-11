@@ -86,5 +86,14 @@ public class UsuarioService {
         return usuarioMapper.toDTO(usuario);
     }
 
+    public void recuperarSenha(String email) {
+        var usuario = usuarioRepository.findByEmail(email);
+
+        if (usuario.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado com este e-mail.");
+        }
+
+    }
+
 
 }

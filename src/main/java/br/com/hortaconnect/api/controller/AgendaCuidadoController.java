@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("agenda-cuidados")
+@RequestMapping("/api/agenda-cuidados")
 public class AgendaCuidadoController {
     private final AgendaCuidadoService agendaCuidadoService;
 

@@ -67,7 +67,7 @@ public class CotacaoService {
         params.put("horas", "72");
         params.put("latitude", lat);
         params.put("longitude", lon);
-        params.put("raio", "15");
+        params.put("raio", "25");
         params.put("precomax", "0");
         params.put("precomin", "0");
         params.put("ordenar", "preco.asc");

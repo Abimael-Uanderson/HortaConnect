@@ -1,6 +1,5 @@
 const API_BASE_URL = "/api";
 
-
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem("token");
   const headers: Record<string, string> = {
@@ -85,7 +84,7 @@ export const alertaApi = {
 };
 
 // ─── Cotação ──────────────────────────────────────
-export interface ProdutoCotacaoDTO { nome: string; preco: number; nomeEstabelecimento: string; endereco: string; }
+export interface ProdutoCotacaoDTO { nome: string; preco: string; estabelecimento: string; logradouro: string; numero: string; bairro: string; }
 
 export const cotacaoApi = {
   buscar: (termo: string) => request<ProdutoCotacaoDTO[]>(`/cotacoes/buscar?termo=${encodeURIComponent(termo)}`),

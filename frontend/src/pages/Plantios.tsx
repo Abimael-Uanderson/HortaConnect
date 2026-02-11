@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { plantioApi, PlantioResponse, PlantioRequest } from "@/services/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,10 @@ import { Sprout, Plus, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const estagios = ["SEMEADURA", "GERMINACAO", "CRESCIMENTO", "FLORACAO", "FRUTIFICACAO", "COLHEITA"];
-
 const emptyForm: PlantioRequest = { nomeCultura: "", cultivar: "", dataPlantio: "", tipoSolo: "", estagioCrescimento: "", areaM2: 0, observacoes: "" };
+
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } } as const;
+const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } } as const;
 
 const Plantios = () => {
   const [plantios, setPlantios] = useState<PlantioResponse[]>([]);
@@ -47,79 +50,81 @@ const Plantios = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold">Meus Plantios</h1>
-          <p className="text-muted-foreground">Gerencie suas culturas</p>
+        <div className="page-header mb-0">
+          <h1>Meus Plantios</h1>
+          <p>Gerencie suas culturas</p>
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
-            <Button><Plus className="mr-2 h-4 w-4" /> Novo Plantio</Button>
+            <Button className="h-11 px-5 font-semibold"><Plus className="mr-2 h-4 w-4" /> Novo Plantio</Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{editId ? "Editar Plantio" : "Novo Plantio"}</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="space-y-1"><Label>Cultura</Label><Input value={form.nomeCultura} onChange={(e) => handleChange("nomeCultura", e.target.value)} required /></div>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader><DialogTitle className="font-display text-xl">{editId ? "Editar Plantio" : "Novo Plantio"}</DialogTitle></DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5"><Label>Cultura</Label><Input value={form.nomeCultura} onChange={(e) => handleChange("nomeCultura", e.target.value)} required className="h-11" /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label>Cultivar</Label><Input value={form.cultivar} onChange={(e) => handleChange("cultivar", e.target.value)} /></div>
-                <div className="space-y-1"><Label>Data Plantio</Label><Input type="date" value={form.dataPlantio} onChange={(e) => handleChange("dataPlantio", e.target.value)} /></div>
+                <div className="space-y-1.5"><Label>Cultivar</Label><Input value={form.cultivar} onChange={(e) => handleChange("cultivar", e.target.value)} className="h-11" /></div>
+                <div className="space-y-1.5"><Label>Data Plantio</Label><Input type="date" value={form.dataPlantio} onChange={(e) => handleChange("dataPlantio", e.target.value)} className="h-11" /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label>Tipo de Solo</Label><Input value={form.tipoSolo} onChange={(e) => handleChange("tipoSolo", e.target.value)} /></div>
-                <div className="space-y-1"><Label>Área (m²)</Label><Input type="number" value={form.areaM2} onChange={(e) => handleChange("areaM2", Number(e.target.value))} /></div>
+                <div className="space-y-1.5"><Label>Tipo de Solo</Label><Input value={form.tipoSolo} onChange={(e) => handleChange("tipoSolo", e.target.value)} className="h-11" /></div>
+                <div className="space-y-1.5"><Label>Área (m²)</Label><Input type="number" value={form.areaM2} onChange={(e) => handleChange("areaM2", Number(e.target.value))} className="h-11" /></div>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label>Estágio</Label>
                 <Select value={form.estagioCrescimento} onValueChange={(v) => handleChange("estagioCrescimento", v)}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectTrigger className="h-11"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>{estagios.map((e) => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1"><Label>Observações</Label><Textarea value={form.observacoes} onChange={(e) => handleChange("observacoes", e.target.value)} /></div>
-              <Button type="submit" className="w-full">{editId ? "Salvar" : "Criar"}</Button>
+              <div className="space-y-1.5"><Label>Observações</Label><Textarea value={form.observacoes} onChange={(e) => handleChange("observacoes", e.target.value)} /></div>
+              <Button type="submit" className="w-full h-11 font-semibold">{editId ? "Salvar" : "Criar"}</Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
       {plantios.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-          <Sprout className="h-12 w-12 mb-3" />
+        <div className="empty-state">
+          <Sprout />
           <p>Nenhum plantio cadastrado</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" variants={container} initial="hidden" animate="show">
           {plantios.map((p) => (
-            <Card key={p.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      <Sprout className="h-5 w-5 text-primary" />
+            <motion.div key={p.id} variants={item}>
+              <Card className="glass-card-hover border-border/40">
+                <CardContent className="pt-5 pb-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                        <Sprout className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold">{p.nomeCultura}</p>
+                        <p className="text-xs text-muted-foreground">{p.cultivar}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold">{p.nomeCultura}</p>
-                      <p className="text-xs text-muted-foreground">{p.cultivar}</p>
+                    <div className="flex gap-0.5">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(p)}><Pencil className="h-3.5 w-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(p.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <span className="bg-muted/50 px-2 py-1 rounded-md">Solo: {p.tipoSolo || "—"}</span>
+                    <span className="bg-muted/50 px-2 py-1 rounded-md">Área: {p.areaM2 || "—"} m²</span>
+                    <span className="bg-primary/5 px-2 py-1 rounded-md text-primary font-medium">Estágio: {p.estagioCrescimento || "—"}</span>
+                    <span className="bg-muted/50 px-2 py-1 rounded-md">Data: {p.dataPlantio || "—"}</span>
                   </div>
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <span>Solo: {p.tipoSolo || "—"}</span>
-                  <span>Área: {p.areaM2 || "—"} m²</span>
-                  <span>Estágio: {p.estagioCrescimento || "—"}</span>
-                  <span>Data: {p.dataPlantio || "—"}</span>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

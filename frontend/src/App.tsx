@@ -14,9 +14,9 @@ import Agenda from "@/pages/Agenda";
 import Historico from "@/pages/Historico";
 import Alertas from "@/pages/Alertas";
 import Cotacao from "@/pages/Cotacao";
-import NotFound from "@/pages/NotFound";
 import Perfil from "@/pages/Perfil";
 import RecuperarSenha from "@/pages/RecuperarSenha";
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 

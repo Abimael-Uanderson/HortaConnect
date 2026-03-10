@@ -1,6 +1,7 @@
 package br.com.hortaconnect.api.repository;
 
 import br.com.hortaconnect.api.entity.Plantio;
+import br.com.hortaconnect.api.enums.EstagioCrescimento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,4 +11,5 @@ import java.util.List;
 public interface PlantioRepository extends JpaRepository<Plantio, Long> {
     List<Plantio> findByUsuarioId(Long usuarioId);
     List<Plantio> findAllByUsuarioIdAndAtivoTrue(Long usuarioId);
+    List<Plantio> findAllByUsuarioIdAndEstagioCrescimentoAndAtivoTrue(Long usuarioId, EstagioCrescimento estagio);
 }

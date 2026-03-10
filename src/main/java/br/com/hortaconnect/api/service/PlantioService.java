@@ -4,6 +4,7 @@ import br.com.hortaconnect.api.dto.PlantioRequestDTO;
 import br.com.hortaconnect.api.dto.PlantioResponseDTO;
 import br.com.hortaconnect.api.entity.Plantio;
 import br.com.hortaconnect.api.entity.Usuario;
+import br.com.hortaconnect.api.enums.EstagioCrescimento;
 import br.com.hortaconnect.api.mapper.PlantioMapper;
 import br.com.hortaconnect.api.repository.PlantioRepository;
 import br.com.hortaconnect.api.repository.UsuarioRepository;
@@ -37,11 +38,28 @@ public class PlantioService {
         return plantioMapper.toDTO(plantio);
     }
 
-    public List<PlantioResponseDTO> listarPlantios() {
+    public List<PlantioResponseDTO> listarPlantios(String estagioFiltro) {
         Usuario usuarioLogado =  (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long usuarioId = usuarioLogado.getId() ;
+        Long usuarioId = usuarioLogado.getId();
 
-        List<Plantio> plantios = plantioRepository.findAllByUsuarioIdAndAtivoTrue(usuarioId);
+        List<Plantio> plantios;
+
+        // Verifica se o filtro veio preenchido e é diferente de "TODOS"
+        if (estagioFiltro != null && !estagioFiltro.trim().isEmpty() && !estagioFiltro.equalsIgnoreCase("TODOS")) {
+            try {
+                // Converte a String (ex: "GERMINACAO") para o Enum
+                EstagioCrescimento estagioEnum = EstagioCrescimento.valueOf(estagioFiltro.toUpperCase());
+                // Busca filtrando pelo estágio
+                plantios = plantioRepository.findAllByUsuarioIdAndEstagioCrescimentoAndAtivoTrue(usuarioId, estagioEnum);
+            } catch (IllegalArgumentException e) {
+                // Se o frontend enviar um estágio inválido que não existe no Enum, ignoramos o erro e buscamos todos
+                plantios = plantioRepository.findAllByUsuarioIdAndAtivoTrue(usuarioId);
+            }
+        } else {
+            // Sem filtro, busca todos
+            plantios = plantioRepository.findAllByUsuarioIdAndAtivoTrue(usuarioId);
+        }
+
         return plantios.stream()
                 .map(plantioMapper::toDTO)
                 .toList();

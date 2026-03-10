@@ -28,8 +28,9 @@ public class PlantioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PlantioResponseDTO>> listarPlantios() {
-        List<PlantioResponseDTO> plantios = plantioService.listarPlantios();
+    public ResponseEntity<List<PlantioResponseDTO>> listarPlantios(@RequestParam(required = false) String estagio) {
+        // Passa o parâmetro para o Service (mesmo que seja null)
+        List<PlantioResponseDTO> plantios = plantioService.listarPlantios(estagio);
 
         return ResponseEntity.ok(plantios);
     }

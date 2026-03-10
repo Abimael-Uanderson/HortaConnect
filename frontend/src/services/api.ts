@@ -38,7 +38,10 @@ export interface PlantioResponse { id: number; nomeCultura: string; cultivar: st
 
 export const plantioApi = {
   criar: (data: PlantioRequest) => request<PlantioResponse>("/plantios", { method: "POST", body: JSON.stringify(data) }),
-  listar: () => request<PlantioResponse[]>("/plantios"),
+
+  // AQUI FOI ALTERADO: Agora aceita o estágio e manda pro Java
+  listar: (estagio?: string) => request<PlantioResponse[]>(estagio && estagio !== "TODOS" ? `/plantios?estagio=${estagio}` : "/plantios"),
+
   buscarPorId: (id: number) => request<PlantioResponse>(`/plantios/${id}`),
   atualizar: (id: number, data: PlantioRequest) => request<PlantioResponse>(`/plantios/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deletar: (id: number) => request<void>(`/plantios/${id}`, { method: "DELETE" }),
